@@ -1,5 +1,8 @@
 package Lec_Binary_Tree;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 public class BTree {
 	class Node {
 		public Node(int i) {
@@ -119,8 +122,109 @@ public class BTree {
 		int self = L.Ht + R.Ht + 2;
 
 		pair ans = new pair();
-		ans.Ht = Math.max(L.Ht, R.Ht)+1;
-		ans.Dia = Math.max(Math.max(R.Dia, L.Dia), self)
+		ans.Ht = Math.max(L.Ht, R.Ht) + 1;
+		ans.Dia = Math.max(Math.max(R.Dia, L.Dia), self);
+		return ans;
+	}
+
+	public BTree(int[] pre) {
+		pre_idx = 0;
+		root = createPre(pre);
+		pre_idx = 0;
+	}
+
+	int pre_idx = 0;
+
+	private Node createPre(int[] pre) {
+		if (pre_idx >= pre.length || pre[pre_idx] == -1) {
+			pre_idx++;
+			return null;
+		}
+
+		Node nn = new Node(pre[pre_idx]);
+		pre_idx++;
+		nn.left = createPre(pre);
+		nn.right = createPre(pre);
+		return nn;
+	}
+
+	public void lvl() {
+		Queue<Node> Q = new LinkedList<>();
+		Q.add(root);
+		while (!Q.isEmpty()) {
+			Node curr = Q.poll();
+			System.out.println(curr.data);
+			if (curr.left != null) {
+				Q.add(curr.left);
+			}
+			if (curr.right != null) {
+				Q.add(curr.right);
+			}
+		}
+	}
+
+	public void lvl2() {
+		Queue<Node> Q = new LinkedList<>();
+		Q.add(root);
+		int lvl_size = 1;
+		while (!Q.isEmpty()) {
+			for (int cnt = 1; cnt <= lvl_size; cnt++) {
+				Node curr = Q.poll();
+				System.out.print(curr.data + " ");
+				if (curr.left != null) {
+					Q.add(curr.left);
+				}
+				if (curr.right != null) {
+					Q.add(curr.right);
+				}
+			}
+			System.out.println();
+			lvl_size = Q.size();
+		}
+	}
+
+	public BTree(int[] lvl, boolean b) {
+		int idx = 0;
+		root = new Node(lvl[0]);
+		idx++;
+		Queue<Node> Q = new LinkedList<>();
+		Q.add(root);
+		while (idx < lvl.length && !Q.isEmpty()) {
+			Node nn = Q.poll();
+			if (lvl[idx] != -1) {
+				nn.left = new Node(lvl[idx]);
+				Q.add(nn.left);
+			}
+			idx++;
+			if (lvl[idx] != -1) {
+				nn.right = new Node(lvl[idx]);
+				Q.add(nn.right);
+			}
+			idx++;
+		}
+	}
+
+	public boolean isBal() {
+		return isBal(root);
+
+	}
+
+	class pairBal {
+		int Ht = -1;
+		boolean isBal = true;
+	}
+
+	private pairBal isBal(Node nn) {
+		if (nn == null) {
+			return new pairBal();
+		}
+		pairBal L = isBal(nn.left);
+		pairBal R = isBal(nn.right);
+
+		boolean self = Math.abs(L.Ht - R.Ht) <= 1;
+		pairBal ans = new pairBal();
+		ans.Ht = Math.max(L.Ht, R.Ht) + 1;
+		ans.isBal = L.isBal && R.isBal && self;
 		return ans;
 	}
 }
